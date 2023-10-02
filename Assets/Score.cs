@@ -11,6 +11,11 @@ public class Score : MonoBehaviour
   //TextMeshPro scoreText
   public TextMeshProUGUI scoreText;
   public TextMeshProUGUI highscoreText;
+  public bool hasNewHighscore = false;
+  int highscore = 0;
+
+  public delegate void NewHighscoreDelegate();
+  public static event NewHighscoreDelegate newHighscoreDelegate;
 
   // Start is called before the first frame update
   void Start()
@@ -18,7 +23,7 @@ public class Score : MonoBehaviour
     Fox.killFoxDelegate += SaveHighscore;
 
     //Get the highscore from the player prefs
-    int highscore = PlayerPrefs.GetInt("Highscore", 0);
+    highscore = PlayerPrefs.GetInt("Highscore", 0);
     if (highscore > 0)
       highscoreText.text = highscore.ToString();
   }
@@ -33,6 +38,11 @@ public class Score : MonoBehaviour
   {
     this.score += score;
     scoreText.text = this.score.ToString();
+
+    if (this.score > highscore)
+    {
+      hasNewHighscore = true;
+    }
   }
 
   void SaveHighscore()
@@ -42,6 +52,7 @@ public class Score : MonoBehaviour
     {
       PlayerPrefs.SetInt("Highscore", score);
       PlayerPrefs.Save();
+      newHighscoreDelegate?.Invoke();
     }
   }
 }
